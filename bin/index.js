@@ -9,11 +9,12 @@ const app = express()
 const dir = require('./utils/dir')
 const base_dir = process.cwd()
 const fileUpload = require("express-fileupload")
+const meow = require('meow')
 
-const server = () => {
+const server = (port, compressionLevel) => {
 	app.use(fileUpload())
-	
-	app.listen(7777, () => {
+
+	app.listen(port, () => {
 		let ipaddress
 		let interfaces = os.networkInterfaces()
 		
@@ -30,7 +31,7 @@ const server = () => {
 
 		process.stdout.write('\033c') // command to clear console
 
-		const webserver = `http://${ipaddress}:7777`
+		const webserver = `http://${ipaddress}:${port}`
 		console.log("======================================================")
 		console.log(`Scan this QRCode or goto ${webserver}`)
 		console.log("\n")
@@ -91,7 +92,7 @@ const server = () => {
             res.sendStatus(403)
         }
 
-        await dir.zipDir(directory, res).then((output_path) => {
+        await dir.zipDir(directory, res, compressionLevel).then((output_path) => {
                 
         })
         .catch(err => {
@@ -112,5 +113,51 @@ const server = () => {
     })
 }
 
+const cli = meow(`
+	[ Usage ]
+	
+		$ transify
 
-server()
+	[ Options ]
+	
+		--port, -p | Run in specified port
+		--compression, -c | Z-Lib compression level (0 - 9)
+`,
+{
+	boolean: ['help', 'version'],
+	alias: 
+	{
+		h: 'help',
+		v: 'version' 
+	},
+	flags: 
+	{
+		port: 
+		{
+			type: 'number',
+			default: 7777,
+			alias: 'p'
+		},
+		compression: 
+		{
+			type: 'number',
+			default: 5,
+			alias: 'c'
+		}
+	}
+})
+
+const port = Number.isInteger(cli.flags.port) ? cli.flags.port : undefined
+const compression = Number.isInteger(cli.flags.compression) ? cli.flags.compression : undefined
+
+if (compression == undefined || (compression > 9 || !(compression >= 0))) {
+    console.log("Zip Compression Level must be a number between 0 - 9.")
+    process.exit()
+}
+
+if (port == undefined || (port > 65535  || (port <= 1023))) {
+    console.log("Port must be a number between 1024 - 65535.")
+    process.exit()
+}
+
+server(cli.flags.port, cli.flags.compression)

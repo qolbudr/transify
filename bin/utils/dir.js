@@ -58,11 +58,11 @@ dir.downloadFile =  async (file, res) =>
     return file_path
 }
 
-dir.zipDir = async (directory, res) => 
+dir.zipDir = async (directory, res, compressionLevel) => 
 {
 	let archive = archiver("zip", 
 	{
-        zlib: { level: 9 },
+        zlib: { level: compressionLevel },
     })
 
     res.writeHead(200, 
