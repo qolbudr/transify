@@ -1,6 +1,6 @@
 import { ArrowRight2, Layer, Refresh } from 'iconsax-react';
 import { useState, useEffect } from 'react'
-import { getFiles, getRelDir, getBaseDir, downloadFile, downloadDir } from '../utils/dirHelper';
+import { getFiles, getRelDir, getBaseDir, downloadFile, downloadDir, downloadZipFile } from '../utils/dirHelper';
 import { getIcon } from '../utils/iconHelper';
 
 const Files = () => {
@@ -76,12 +76,17 @@ const Files = () => {
 
     const downloadZip = async (p, isDir) => {
         let path = currentPath
-        if(isDir) {
-            path != '' ?
-            path += "\\" + p :
-            path += p
+        let pathBase = baseDir
+        path != '' ?
+        path += "\\" + p :
+        path += p
 
+        pathBase += "\\" + p
+
+        if(isDir) {
             await downloadDir(path)
+        } else {
+            await downloadZipFile(pathBase)
         }
     }
 

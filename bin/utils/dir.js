@@ -79,6 +79,25 @@ dir.downloadFile =  async (file, res) =>
     return file_path
 }
 
+dir.zipFile = async (file, res, compressionLevel) =>
+{
+    let archive = archiver("zip", 
+	{
+        zlib: { level: compressionLevel },
+    })
+
+    res.writeHead(200, 
+    {
+        "Content-Type": "application/zip",
+        "Content-Disposition": "attachment filename=" + file + ".zip",
+    })
+
+    archive.pipe(res)
+    archive.file(file)
+
+    archive.finalize()
+}
+
 dir.zipDir = async (directory, res, compressionLevel) => 
 {
 	let archive = archiver("zip", 

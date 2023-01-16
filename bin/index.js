@@ -103,6 +103,19 @@ const server = (port, compressionLevel) => {
         })
     })
 
+    app.get('/api/downloadZipFile', async (req, res) => 
+    {
+    	const file = req.query.file
+
+        await dir.zipFile(file, res, compressionLevel).then((output_path) => {
+                
+        })
+        .catch(err => {
+            console.error("error", err)
+            res.sendStatus(501)
+        })
+    })
+
     app.post("/api/upload", async (req, res) => {
 
         dir.uploadFile(req, res).then(() => {

@@ -28,3 +28,7 @@ export const downloadFile = async (path) => {
 export const downloadDir = async (path) => {
     window.location.href = "http://192.168.208.187/api/downloadDir?dir=" + path
 }
+
+export const downloadZipFile = async (path) => {
+    window.location.href = "http://192.168.208.187/api/downloadZipFile?file=" + path
+}
