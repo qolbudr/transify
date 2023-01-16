@@ -57,21 +57,12 @@ const App = () => {
                 <ul className="list-unstyled">
                   <li className="flex justify-between items-center mb-3">
                     <div className="grow mr-2">
-                      <Document size="15"/>
+                      <img src={'icon/doc.png'} className="w-28"/>
                     </div>
-                    <p className="truncate">[DOCX] IMPLEMENTASI MODEL DESAIN THINKING SEBAGAI PENDEKATAN PERANCANGAN ANTARMUKA SMART APP UNIVERSITAS ISLAM LAMONGAN.docx</p>
-                  </li>
-                  <li className="flex justify-between items-center mb-3">
-                    <div className="grow mr-2">
-                      <Document size="15"/>
+                    <div className="truncate">
+                      <p className="truncate">IMPLEMENTASI MODEL DESAIN THINKING SEBAGAI PENDEKATAN PERANCANGAN ANTARMUKA SMART APP UNIVERSITAS ISLAM LAMONGAN.docx</p>
+                      <p className="text-xs text-slate-500">126 Kb</p>
                     </div>
-                    <p className="truncate">[DOCX] IMPLEMENTASI MODEL DESAIN THINKING SEBAGAI PENDEKATAN PERANCANGAN ANTARMUKA SMART APP UNIVERSITAS ISLAM LAMONGAN.docx</p>
-                  </li>
-                  <li className="flex justify-between items-center mb-3">
-                    <div className="grow mr-2">
-                      <Document size="15"/>
-                    </div>
-                    <p className="truncate">[DOCX] IMPLEMENTASI MODEL DESAIN THINKING SEBAGAI PENDEKATAN PERANCANGAN ANTARMUKA SMART APP UNIVERSITAS ISLAM LAMONGAN.docx</p>
                   </li>
                 </ul>
               </div>
