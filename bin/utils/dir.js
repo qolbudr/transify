@@ -10,7 +10,8 @@ const dir = exports = module.exports = {};
 dir.fetchDir = async (base_dir) => 
 {
 	let files;
-	let jsonResult = {};
+	let jsonResult = [];
+    let tempResult = [];
 
 	const readDir = util.promisify(fs.readdir)
 
@@ -26,19 +27,39 @@ dir.fetchDir = async (base_dir) =>
 	files = files.filter((item) => !/(^|\/)\.[^\/\.]/g.test(item)) // hide hidden files from directory
 
 	files.forEach((file) => {
-        jsonResult[file] = file
-        let is_dir = false
-
-        const file_path = path.join(base_dir, file)
-        
-        if (fs.existsSync(file_path) && fs.lstatSync(file_path).isDirectory()) // check if its folder and not empty
+        try
         {
-            is_dir = true
-        }
+            let data = {}
+            data['name'] = file
+            let is_dir = false
 
-        jsonResult[file] = is_dir
+            const file_path = path.join(base_dir, file)
+            
+            if (fs.existsSync(file_path) && fs.lstatSync(file_path).isDirectory()) // check if its folder and not empty
+            {
+                is_dir = true
+            }
+
+            data['dir'] = is_dir
+            data['size'] = fs.lstatSync(file_path).size
+            data['time'] = fs.lstatSync(file_path).birthtime.toLocaleDateString()
+            data['extension'] = file.substring(file.lastIndexOf("."))
+            if(is_dir) 
+            {
+                jsonResult.push(data)
+            }
+            else
+            {
+                tempResult.push(data)
+            }
+        }
+        catch (e)
+        {
+            
+        } 
     })
 
+    jsonResult.push(...tempResult)
     return jsonResult;
 }
 
