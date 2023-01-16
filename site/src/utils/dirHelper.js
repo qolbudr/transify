@@ -20,3 +20,11 @@ export const getBaseDir = async () => {
     const res = await axios.get("http://192.168.208.187/api/basedir");
     return res.data;
 }
+
+export const downloadFile = async (path) => {
+    window.location.href = "http://192.168.208.187/api/download?file=" + path
+}
+
+export const downloadDir = async (path) => {
+    window.location.href = "http://192.168.208.187/api/downloadDir?dir=" + path
+}

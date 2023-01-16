@@ -1,6 +1,6 @@
 import { ArrowRight2, Layer, Refresh } from 'iconsax-react';
 import { useState, useEffect } from 'react'
-import { getFiles, getRelDir, getBaseDir } from '../utils/dirHelper';
+import { getFiles, getRelDir, getBaseDir, downloadFile, downloadDir } from '../utils/dirHelper';
 import { getIcon } from '../utils/iconHelper';
 
 const Files = () => {
@@ -26,18 +26,25 @@ const Files = () => {
         setFiles(result);
     }
 
-    const goTo = async (p) => {
+    const goTo = async (p, isDir) => {
         let path = currentPath
         let pathBase = baseDir 
-        path != '' ?
-        path += "\\" + p :
-        path += p
+        if(!isDir) {
+            path != '' ?
+            path += "\\" + p :
+            path += p
 
-        pathBase += "\\" + p
-        console.log(pathBase)
-        await fetchFiles(path)
-        setPath(path)
-        setBaseDir(pathBase)
+            await downloadFile(path)
+        } else {
+            path != '' ?
+            path += "\\" + p :
+            path += p
+
+            pathBase += "\\" + p
+            await fetchFiles(path)
+            setPath(path)
+            setBaseDir(pathBase)
+        }
     }
 
     const backTo = async (index) => {
@@ -67,6 +74,17 @@ const Files = () => {
         setBaseDir(pathBase)
     }
 
+    const downloadZip = async (p, isDir) => {
+        let path = currentPath
+        if(isDir) {
+            path != '' ?
+            path += "\\" + p :
+            path += p
+
+            await downloadDir(path)
+        }
+    }
+
     return (
         <div className="flex flex-col max-h-80 h-80">
             <div className="grow h-10 rounded-lg text-xs overflow-hidden relative mb-3">
@@ -90,7 +108,7 @@ const Files = () => {
                 <ul className="list-unstyled">
                     {files.map((value, index) => (
                         <li className="hover:bg-cyan-500/30 px-3 py-2 rounded-md relative">
-                            <a className="grid grid-cols-7 gap-2 items-center cursor-pointer" onClick={() => goTo(value.name)}>
+                            <a className="grid grid-cols-7 gap-2 items-center cursor-pointer" onClick={() => goTo(value.name, value.dir)}>
                                 <div className="col-span-1">
                                     <img src={getIcon(value.extension, value.dir)} className="w-8"/>
                                 </div>
@@ -99,7 +117,7 @@ const Files = () => {
                                     { value.dir ? <p className="text-xs text-slate-500">{value.time}</p> : <p className="text-xs text-slate-500">{value.size} B</p> }
                                 </div>
                             </a>
-                            <div className="absolute z-10 cursor-pointer right-3 bottom-4" onClick={() => alert(1)}>
+                            <div className="absolute z-10 cursor-pointer right-3 bottom-4" onClick={() => downloadZip(value.name, value.dir)}>
                                 <Layer size="18"/>
                             </div>
                         </li>
