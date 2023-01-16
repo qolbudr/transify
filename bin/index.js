@@ -10,9 +10,11 @@ const dir = require('./utils/dir')
 const base_dir = process.cwd()
 const fileUpload = require("express-fileupload")
 const meow = require('meow')
+const cors = require('cors')
 
 const server = (port, compressionLevel) => {
 	app.use(fileUpload())
+    app.use(cors())
 
 	app.listen(port, () => {
 		let ipaddress
@@ -111,6 +113,10 @@ const server = (port, compressionLevel) => {
             res.sendStatus(501)
         })
     })
+
+    app.get("/api/basedir", async (req, res) => {
+        res.send(base_dir)
+    })
 }
 
 const cli = meow(`
@@ -155,7 +161,7 @@ if (compression == undefined || (compression > 9 || !(compression >= 0))) {
     process.exit()
 }
 
-if (port == undefined || (port > 65535  || (port <= 1023))) {
+if (port == undefined || (port > 65535  || (port <= 10))) {
     console.log("Port must be a number between 1024 - 65535.")
     process.exit()
 }
