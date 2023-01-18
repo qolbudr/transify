@@ -11,8 +11,11 @@ const base_dir = process.cwd()
 const fileUpload = require("express-fileupload")
 const meow = require('meow')
 const cors = require('cors')
+const cTable = require('console.table');
 
-const server = (port, compressionLevel) => {
+const log = [];
+
+const server = (port, compressionLevel, isTest) => {
 	app.use(fileUpload())
     app.use(cors())
 
@@ -54,12 +57,6 @@ const server = (port, compressionLevel) => {
             directory = base_dir
         }
 
-        if(!dir.checkPathOK(directory))
-        {
-            console.error("Path attempting to go back. dir: ", dir)
-            res.sendStatus(403)
-        }
-
         dir.fetchDir(directory).then((results) => 
         {
             res.send(results)
@@ -71,15 +68,35 @@ const server = (port, compressionLevel) => {
         })
     })
 
+    app.get("/api/testDownload", async (req, res) => 
+    {
+        const file = req.query.file
+        dir.downloadFile(file, res).then( async (file_path) => {
+   			const file_name = file_path.substring(file_path.lastIndexOf("\\")).replaceAll('\\', '')
+   			const file_ext = file_name.substring(file_name.lastIndexOf(".")).replaceAll('.', '')
+	        const data = fs.createReadStream(file_path);
+	        const disposition = 'attachment; filename="' + file_name + '"';
+	        
+	        res.setHeader('Content-Type', 'application/' + file_ext);
+	        res.setHeader('Content-Disposition', disposition);
+	        data.pipe(res);
+        })
+        .catch((err) => 
+        {
+            console.log("error", err)
+            res.sendStatus(501)
+        })
+    })
+
     app.get("/api/download", async (req, res) => 
     {
         const file = req.query.file
-        dir.downloadFile(file, res).then((file_path) => {
+        dir.downloadFile(file, res).then( async (file_path) => {
    			res.download(file_path)
         })
         .catch((err) => 
         {
-            console.error("error", err)
+            console.log("error", err)
             res.sendStatus(501)
         })
     })
@@ -88,14 +105,8 @@ const server = (port, compressionLevel) => {
     {
     	const directory = req.query.dir
 
-    	if(!dir.checkPathOK(directory))
-        {
-            console.error("Path attempting to go back. dir: ", dir)
-            res.sendStatus(403)
-        }
-
         await dir.zipDir(directory, res, compressionLevel).then((output_path) => {
-                
+        	res.send(output_path)
         })
         .catch(err => {
             console.error("error", err)
@@ -108,7 +119,7 @@ const server = (port, compressionLevel) => {
     	const file = req.query.file
 
         await dir.zipFile(file, res, compressionLevel).then((output_path) => {
-                
+        	res.send(output_path)
         })
         .catch(err => {
             console.error("error", err)
@@ -130,6 +141,28 @@ const server = (port, compressionLevel) => {
     app.get("/api/basedir", async (req, res) => {
         res.send(base_dir)
     })
+
+    app.get("/api/isTest", async (req, res) => {
+    	res.send(isTest)
+    })
+
+    app.get("/api/showLog", async (req, res) => {
+    	const file = req.query.file
+    	const size = req.query.size
+    	const time = req.query.time
+    	const zip = req.query.zip
+
+
+    	log.push({
+    		file: file.substring(file.lastIndexOf("\\")).replaceAll("\\", ""),
+    		size: size,
+    		time: time,
+    		zip: zip
+    	})
+
+    	console.table(log)
+    	res.send("ok");
+    })
 }
 
 const cli = meow(`
@@ -141,6 +174,7 @@ const cli = meow(`
 	
 		--port, -p | Run in specified port
 		--compression, -c | Z-Lib compression level (0 - 9)
+		--test, -t | Run to test download speed and file size
 `,
 {
 	boolean: ['help', 'version'],
@@ -162,6 +196,12 @@ const cli = meow(`
 			type: 'number',
 			default: 5,
 			alias: 'c'
+		},
+		test: 
+		{
+			type: 'boolean',
+			default: false,
+			alias: 't'
 		}
 	}
 })
@@ -179,4 +219,4 @@ if (port == undefined || (port > 65535  || (port <= 10))) {
     process.exit()
 }
 
-server(cli.flags.port, cli.flags.compression)
+server(cli.flags.port, cli.flags.compression, cli.flags.test)

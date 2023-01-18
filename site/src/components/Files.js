@@ -1,12 +1,14 @@
 import { ArrowRight2, Layer, Refresh } from 'iconsax-react';
 import { useState, useEffect } from 'react'
-import { getFiles, getRelDir, getBaseDir, downloadFile, downloadDir, downloadZipFile } from '../utils/dirHelper';
+import { getFiles, getRelDir, getBaseDir, download, zipDir, zipFile, isTest } from '../utils/dirHelper';
 import { getIcon } from '../utils/iconHelper';
+import axios from 'axios'
 
 const Files = () => {
     const [ currentPath, setPath ] = useState('');
     const [ files, setFiles ] = useState([]);
     const [ baseDir, setBaseDir ] = useState('');
+    const base_url = 'http://192.168.7.187/'
     
     useEffect(() => {
         fetchBaseDir();
@@ -26,6 +28,19 @@ const Files = () => {
         setFiles(result);
     }
 
+    const fetchFile = async (path) => {
+        const data = await axios({
+            url: base_url + "api/testDownload?file=" + path,
+            method: 'get',
+            responseType: 'stream',
+            onDownloadProgress: (event) => {
+                console.log(event)
+            }
+        })
+
+        return data;
+    }
+
     const goTo = async (p, isDir) => {
         let path = currentPath
         let pathBase = baseDir 
@@ -34,13 +49,28 @@ const Files = () => {
             path += "\\" + p :
             path += p
 
-            await downloadFile(path)
+            const test = await isTest()
+
+            if(!test)
+            {
+                download(path)
+            }
+            else
+            {
+                const time = Date.now()
+                const res = await fetchFile(path)
+                const totalTime = Date.now() - time;
+                console.log(res)
+                await axios.get(base_url + `api/showLog?file=${path}&size=${res.data.length}&time=${totalTime}&zip=false`)
+            }
         } else {
             path != '' ?
             path += "\\" + p :
             path += p
 
             pathBase += "\\" + p
+
+            const time = Date.now()
             await fetchFiles(path)
             setPath(path)
             setBaseDir(pathBase)
@@ -84,9 +114,37 @@ const Files = () => {
         pathBase += "\\" + p
 
         if(isDir) {
-            await downloadDir(path)
+            const test = await isTest()
+
+            if(!test)
+            {
+                const output = await zipDir(path)
+                download(output)
+            }
+            else
+            {
+                const output = await zipDir(path)
+                const time = Date.now()
+                const res = await fetchFile(output)
+                const totalTime = Date.now() - time;
+                await axios.get(base_url + `api/showLog?file=${path}&size=${res.data.length}&time=${totalTime}&zip=true`)
+            }
         } else {
-            await downloadZipFile(pathBase)
+            const test = await isTest()
+
+            if(!test)
+            {
+                const output = await zipFile(path)
+                download(output)
+            }
+            else
+            {
+                const output = await zipFile(path)
+                const time = Date.now()
+                const res = await fetchFile(output)
+                const totalTime = Date.now() - time;
+                await axios.get(base_url + `api/showLog?file=${path}&size=${res.data.length}&time=${totalTime}&zip=true`)
+            }
         }
     }
 

@@ -1,8 +1,11 @@
 import axios from 'axios'
+import { Buffer } from 'buffer';
+
+const base_url = 'http://192.168.7.187/'
 
 
 export const getFiles = async (path) => {
-    const res = await axios.get("http://192.168.208.187/api/files?path=" + path)
+    const res = await axios.get(base_url + "api/files?path=" + path)
     return res.data
 }
 
@@ -17,18 +20,25 @@ export const getRelDir = (path) => {
 }
 
 export const getBaseDir = async () => {
-    const res = await axios.get("http://192.168.208.187/api/basedir");
+    const res = await axios.get(base_url + "api/basedir");
     return res.data;
 }
 
-export const downloadFile = async (path) => {
-    window.location.href = "http://192.168.208.187/api/download?file=" + path
+export const download = (path) => {
+    window.location.href = base_url + "api/download?file=" + path
 }
 
-export const downloadDir = async (path) => {
-    window.location.href = "http://192.168.208.187/api/downloadDir?dir=" + path
+export const zipDir = async (path) => {
+    const output = await axios.get(base_url + "api/downloadDir?dir=" + path);
+    return output.data
 }
 
-export const downloadZipFile = async (path) => {
-    window.location.href = "http://192.168.208.187/api/downloadZipFile?file=" + path
+export const zipFile = async (path) => {
+    const output = await axios.get(base_url + "api/downloadZipFile?file=" + path);
+    return output.data
+}
+
+export const isTest = async () => {
+    const res = await axios.get(base_url + "api/isTest")
+    return res.data
 }

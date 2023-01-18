@@ -86,35 +86,43 @@ dir.zipFile = async (file, res, compressionLevel) =>
         zlib: { level: compressionLevel },
     })
 
-    res.writeHead(200, 
-    {
-        "Content-Type": "application/zip",
-        "Content-Disposition": "attachment filename=" + file + ".zip",
-    })
+    const name = file.substring(file.lastIndexOf("\\")).replaceAll('\\', '')
 
-    archive.pipe(res)
-    archive.file(file)
+    const location = 'output/' + name + '.zip'
 
-    archive.finalize()
+    if(fs.existsSync(path.join(base_dir, location))) return location;
+
+    const output = fs.createWriteStream(path.join(base_dir, location));
+
+    await archive.pipe(output)
+    await archive.append(fs.createReadStream(path.join(base_dir, file)), {name: name})
+
+    await archive.finalize()
+
+    return location;
 }
 
 dir.zipDir = async (directory, res, compressionLevel) => 
 {
-	let archive = archiver("zip", 
-	{
+    let archive = archiver("zip", 
+    {
         zlib: { level: compressionLevel },
     })
 
-    res.writeHead(200, 
-    {
-        "Content-Type": "application/zip",
-        "Content-Disposition": "attachment filename=" + directory + ".zip",
-    })
+    const name = directory.substring(directory.lastIndexOf("\\")).replaceAll('\\', '')
 
-    archive.pipe(res)
-    archive.directory(path.join(base_dir, directory), directory)
+    const location = 'output/' + name + '.zip'
 
-    archive.finalize()
+    if(fs.existsSync(path.join(base_dir, location))) return location;
+
+    const output = fs.createWriteStream(path.join(base_dir, location));
+
+    await archive.pipe(output)
+    await archive.directory(path.join(base_dir, directory), directory)
+
+    await archive.finalize()
+
+    return location;
 }
 
 dir.uploadFile = async (req, res) => 
