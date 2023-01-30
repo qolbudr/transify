@@ -70,7 +70,12 @@ dir.checkPathOK = (path_check) =>
 
 dir.downloadFile =  async (file, res) => 
 {
-    let file_path = path.join(base_dir, file)
+    let file_path;
+    if(file.includes('output')) {
+         file_path = file;
+    } else {
+         file_path = path.join(base_dir, file)
+    }
     if (fs.existsSync(file_path) && fs.lstatSync(file_path).isDirectory()) 
     {
         is_dir = true
@@ -86,20 +91,21 @@ dir.zipFile = async (file, res, compressionLevel) =>
         zlib: { level: compressionLevel },
     })
 
+
     const name = file.substring(file.lastIndexOf("\\")).replaceAll('\\', '')
 
-    const location = 'output/' + name + '.zip'
+    const location = '../../output/' + name + '.zip'
 
-    if(fs.existsSync(path.join(base_dir, location))) return location;
+    if(fs.existsSync(path.join(__dirname, location))) return path.join(__dirname, location);;
 
-    const output = fs.createWriteStream(path.join(base_dir, location));
+    const output = fs.createWriteStream(path.join(__dirname, location));
 
     await archive.pipe(output)
     await archive.append(fs.createReadStream(path.join(base_dir, file)), {name: name})
 
     await archive.finalize()
 
-    return location;
+    return path.join(__dirname, location);
 }
 
 dir.zipDir = async (directory, res, compressionLevel) => 
@@ -111,18 +117,18 @@ dir.zipDir = async (directory, res, compressionLevel) =>
 
     const name = directory.substring(directory.lastIndexOf("\\")).replaceAll('\\', '')
 
-    const location = 'output/' + name + '.zip'
+    const location = '../../output/' + name + '.zip'
 
-    if(fs.existsSync(path.join(base_dir, location))) return location;
+    if(fs.existsSync(path.join(__dirname, location))) return path.join(__dirname, location);;
 
-    const output = fs.createWriteStream(path.join(base_dir, location));
+    const output = fs.createWriteStream(path.join(__dirname, location));
 
     await archive.pipe(output)
     await archive.directory(path.join(base_dir, directory), directory)
 
     await archive.finalize()
 
-    return location;
+    return path.join(__dirname, location);
 }
 
 dir.uploadFile = async (req, res) => 
