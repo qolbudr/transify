@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Buffer } from 'buffer';
 
-const base_url = 'http://192.168.7.187/'
+const base_url = '/'
 
 
 export const getFiles = async (path) => {
@@ -40,5 +40,20 @@ export const zipFile = async (path) => {
 
 export const isTest = async () => {
     const res = await axios.get(base_url + "api/isTest")
+    return res.data
+}
+
+export const upload = async (path, file) => {
+    const formData = new FormData();
+    formData.append("directory", path);
+    formData.append("file", file);
+    const res = await axios.post(base_url + "api/upload", 
+        formData,
+        {
+        headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+    )
     return res.data
 }

@@ -1,6 +1,14 @@
 import icUpload from '../assets/images/ic_upload.png'
+import { toast } from 'react-toastify';
+import { upload, getFiles, getRelDir } from '../utils/dirHelper';
 
-const Upload = () => {
+const Upload = ({currentPath, setPath, baseDir, setBaseDir, files, setFiles}) => {
+    const uploadFile = async (e) => {
+        await upload(currentPath, e.target.files[0]);
+        const result = await getFiles(getRelDir(currentPath));
+        setFiles(result);
+    } 
+
     return (
         <div className="py-3 px-3 md:px-10 bg-sky-50/50 border-dashed border border-cyan-500/50 rounded-lg h-full flex items-center justify-center">
             <div className="grid grid-cols-3 md:grid-cols-2 gap-4 justify-items-center items-center">
@@ -9,7 +17,10 @@ const Upload = () => {
             </div>
             <div className="col-span-2 md:col-span-2 text-center">
                 <p className="text-sm text-slate-500">Upload your files here.</p>
-                <p className="text-sm text-slate-500"> or<a href="#" className="text-cyan-500"> Browse</a></p>
+                <input id="file" onChange={uploadFile} type="file" style={{'display': 'none'}}/>
+                <p className="text-sm text-slate-500"> or&nbsp;
+                    <label for="file" className="text-cyan-500 cursor-pointer">Browse</label>
+                </p>
             </div>
             </div>
         </div>

@@ -2,13 +2,11 @@ import { ArrowRight2, Layer, Refresh } from 'iconsax-react';
 import { useState, useEffect } from 'react'
 import { getFiles, getRelDir, getBaseDir, download, zipDir, zipFile, isTest } from '../utils/dirHelper';
 import { getIcon } from '../utils/iconHelper';
+import { toast } from 'react-toastify';
 import axios from 'axios'
 
-const Files = () => {
-    const [ currentPath, setPath ] = useState('');
-    const [ files, setFiles ] = useState([]);
-    const [ baseDir, setBaseDir ] = useState('');
-    const base_url = 'http://192.168.7.187/'
+const Files = ({currentPath, setPath, baseDir, setBaseDir, files, setFiles}) => {
+    const base_url = '/'
     
     useEffect(() => {
         fetchBaseDir();
@@ -58,7 +56,14 @@ const Files = () => {
             else
             {
                 const time = Date.now()
-                const res = await fetchFile(path)
+                const res = await toast.promise(
+                    fetchFile(path),
+                    {
+                      pending: 'Simulasi testing pengunduhan dimulai',
+                      success: 'Testing berhasil silahkan cek log pada console',
+                      error: 'Simulasi testing gagal'
+                    }
+                )
                 const totalTime = Date.now() - time;
                 console.log(res)
                 await axios.get(base_url + `api/showLog?file=${path}&size=${res.data.length}&time=${totalTime}&zip=false`)
@@ -118,14 +123,35 @@ const Files = () => {
 
             if(!test)
             {
-                const output = await zipDir(path)
+                const output = await toast.promise(
+                    zipDir(path),
+                    {
+                      pending: 'Mengkompresi folder...',
+                      success: 'Folder berhasil diunduh',
+                      error: 'Kompresi gagal'
+                    }
+                )
                 download(output)
             }
             else
             {
-                const output = await zipDir(path)
+                const output = await toast.promise(
+                    zipDir(path),
+                    {
+                      pending: 'Mengkompresi folder...',
+                      success: 'Folder berhasil diunduh',
+                      error: 'Kompresi gagal'
+                    }
+                )
                 const time = Date.now()
-                const res = await fetchFile(output)
+                const res = await toast.promise(
+                    fetchFile(output),
+                    {
+                      pending: 'Simulasi testing pengunduhan dimulai',
+                      success: 'Testing berhasil silahkan cek log pada console',
+                      error: 'Simulasi testing gagal'
+                    }
+                )
                 const totalTime = Date.now() - time;
                 await axios.get(base_url + `api/showLog?file=${path}&size=${res.data.length}&time=${totalTime}&zip=true`)
             }
@@ -134,14 +160,35 @@ const Files = () => {
 
             if(!test)
             {
-                const output = await zipFile(path)
+                const output = await toast.promise(
+                    zipFile(path),
+                    {
+                      pending: 'Mengkompresi berkas...',
+                      success: 'Folder berhasil diunduh',
+                      error: 'Kompresi gagal'
+                    }
+                )
                 download(output)
             }
             else
             {
-                const output = await zipFile(path)
+                const output = await toast.promise(
+                    zipFile(path),
+                    {
+                      pending: 'Mengkompresi berkas...',
+                      success: 'Folder berhasil diunduh',
+                      error: 'Kompresi gagal'
+                    }
+                )
                 const time = Date.now()
-                const res = await fetchFile(output)
+                const res = await toast.promise(
+                    fetchFile(output),
+                    {
+                      pending: 'Simulasi testing pengunduhan dimulai',
+                      success: 'Testing berhasil silahkan cek log pada console',
+                      error: 'Simulasi testing gagal'
+                    }
+                )
                 const totalTime = Date.now() - time;
                 await axios.get(base_url + `api/showLog?file=${path}&size=${res.data.length}&time=${totalTime}&zip=true`)
             }
