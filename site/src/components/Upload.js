@@ -4,7 +4,14 @@ import { upload, getFiles, getRelDir } from '../utils/dirHelper';
 
 const Upload = ({currentPath, setPath, baseDir, setBaseDir, files, setFiles}) => {
     const uploadFile = async (e) => {
-        await upload(currentPath, e.target.files[0]);
+        await toast.promise(
+            upload(currentPath, e.target.files[0]),
+            {
+              pending: 'Mengirim berkas...',
+              success: 'Berkas berhasil dikirim',
+              error: 'Pengiriman berkas gagal'
+            }
+        )
         const result = await getFiles(getRelDir(currentPath));
         setFiles(result);
     } 

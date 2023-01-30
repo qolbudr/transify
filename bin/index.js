@@ -19,6 +19,9 @@ const server = (port, compressionLevel, isTest) => {
 	app.use(fileUpload())
     app.use(cors())
 
+
+    app.use('/', express.static(path.join(__dirname, "../site/build")))
+
 	app.listen(port, () => {
 		let ipaddress
 		let interfaces = os.networkInterfaces()
